@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    
+    <!--local CSS-->
+    <link href="/calc_evjack/main.css" rel="stylesheet" type="text/css">
+    <link href="/main.css" rel="stylesheet" type="text/css">
+    
+    <title>что-то будет :)</title>
+  </head>
+
+<body>
+  <header>
+    <div class="container-fluid">
+      <nav class="navbar navbar-expand-md navbar-dark bg-dark mb-4">
+        <a class="navbar-brand" href="https://evjack.netlify.app">EV.Jack
+          <img src="/calc_evjack/assets/logo/logo.PNG" width="35" height="35" class="d-inline-block align-top" alt="">
+        </a>
+
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse justify-content-center" id="navbarCollapse">
+          <ul class="nav navbar-nav nav-pills nav-fill">
+            <li class="nav-item">
+              <a class="nav-link active" href="#">Калькулятор</a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link" href="#">Камень - ножницы - бумага</a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link" href="#">Змейка</a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link" href="#">Крестики - нолики</a>
+            </li>
+
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Связь с автором
+              </a>
+
+              <!--не трогать, а то сломаеться!-->
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <a class="dropdown-item" target="_blank" href="https://vk.com/id152879841">ВКонтакте</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" target="_blank" href="https://www.instagram.com/_ev.jack_/">Instagram|Direct</a>
+              </div>
+          </ul>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <div class='container'>
+    <div id='calculator'>
+  
+      <!-- TITLE -->
+  
+      <div id='title' class='text-center'>
+        <h5><b>ELECTRONIC CALCULATOR</b></h5>
+      </div>
+  
+      <!-- ENTRY BOX -->
+  
+      <div id='entrybox' class='text-right'>
+        <div id='entry'>
+          <p id='answer'>0</p>
+        </div>
+        <div id='history'>
+          <p>0</p>
+        </div>
+      </div>
+  
+      <!-- BUTTONS -->
+  
+      <div id='buttons'>
+  
+        <button class='red' value='ac'>AC</button>
+        <button class='red' value='ce'>CE</button>
+        <button value='/'>&divide;</button>
+        <button value='*'>x</button>
+  
+        <button value='7'>7</button>
+        <button value='8'>8</button>
+        <button value='9'>9</button>
+        <button value='-'>-</button>
+  
+        <button value='4'>4</button>
+        <button value='5'>5</button>
+        <button value='6'>6</button>
+        <button value='+'>+</button>
+  
+  
+        <button value='1'>1</button>
+        <button value='2'>2</button>
+        <button value='3'>3</button>
+        <button class='invisible'>N</button>
+  
+        <button id='zeroButton' value='0'>0</button>
+        <button value='.'>.</button>
+        <button id='equalButton' value='='>=</button>
+  
+      </div>
+      <!-- end buttons -->
+      <div id='tester'></div>
+    </div>
+    <!-- end calculator -->
+  </div>
+  <!-- end container --> 
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+    <script src="script.js"></script>
+
+</body>
+</html>

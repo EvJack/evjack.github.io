@@ -1,0 +1,15 @@
+.navbar {
+    border-bottom-left-radius: 2em;
+    border-bottom-right-radius: 2em;
+}
+
+.col {
+    color: #F0FFF0;
+    background-color: #343a40;
+}
+
+.col-6 {
+    color: #F0FFF0;
+    background-color: #343a40;
+    text-align: center;
+}
