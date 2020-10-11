@@ -5,11 +5,16 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
+    <!--  Fonts  -->
+    <link href="https://fonts.googleapis.com/css2?family=Lato&display=swap" rel="stylesheet">
+
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
 
+    <script src="https://kit.fontawesome.com/89d4a47dbb.js" crossorigin="anonymous"></script>
+    
     <!--local CSS-->
-    <link href="/main.css" rel="stylesheet" type="text/css">
+    <link href="/evjack.github.io/pages/calc_evjack/css/main.css" rel="stylesheet" type="text/css">
     
     <title>что-то будет :)</title>
   </head>
@@ -17,8 +22,8 @@
 <body>
   <header>
     <div class="container-fluid">
-      <nav class="navbar fixed-top navbar-expand-md navbar-dark bg-dark mb-4">
-        <a class="navbar-brand" href="#">EV.Jack
+      <nav class="navbar  navbar-expand-md navbar-dark bg-dark mb-4">
+        <a class="navbar-brand" href="/evjack.github.io/index.html">EV.Jack
           <img src="/assets/logo/logo.PNG" width="35" height="35" class="d-inline-block align-top" alt="">
         </a>
 
@@ -29,7 +34,7 @@
         <div class="collapse navbar-collapse justify-content-center" id="navbarCollapse">
           <ul class="nav navbar-nav nav-pills nav-fill">
             <li class="nav-item">
-              <a class="nav-link" href="/evjack.github.io/pages/calc_evjack/index.html">Калькулятор</a>
+              <a class="nav-link active" href="#">Калькулятор</a>
             </li>
 
             <li class="nav-item">
@@ -48,20 +53,41 @@
       </nav>
     </div>
   </header>
-
-  <div class="container-fluid">
-    <div class="row">
-      <div class="col">1 iz 3</div>
-      <div class="col-6">2 iz 3</div>
-      <div class="col">3 iz 3</div>
+  <div class="container">
+    <div class="calculator">
+      <div class="header">
+        <input type="text" placeholder="0.00" class="account" readonly>
+        <input type="text" placeholder="0.00" class="result" readonly>
+      </div>
+      <div class="main">
+        <button onclick="input('%')" class="btn__calc">%</button>
+        <button onclick="reset('')" class="btn__calc">C</button>
+        <button onclick="backspace('')" class="btn__calc"><i class="fas fa-backspace"></i></button>
+        <button onclick="input('/')" class="btn__calc btn-indigo">/</button>
+        <button onclick="input('7')" class="btn__calc">7</button>
+        <button onclick="input('8')" class="btn__calc">8</button>
+        <button onclick="input('9')" class="btn__calc">9</button>
+        <button onclick="input('*')" class="btn__calc btn-indigo">х</button>
+        <button onclick="input('4')" class="btn__calc">4</button>
+        <button onclick="input('5')" class="btn__calc">5</button>
+        <button onclick="input('6')" class="btn__calc">6</button>
+        <button onclick="input('-')" class="btn__calc btn-indigo">-</button>
+        <button onclick="input('1')" class="btn__calc">1</button>
+        <button onclick="input('2')" class="btn__calc">2</button>
+        <button onclick="input('3')" class="btn__calc">3</button>
+        <button onclick="input('+')" class="btn__calc btn-indigo">+</button>
+        <button onclick="input('0')" class="btn__calc">0</button>
+        <button onclick="input('')" class="btn__calc">.</button>
+        <button onclick="result('')" class="btn-big">=</button>
+      </div>
     </div>
   </div>
-
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
-
+    <script src="/evjack.github.io/pages/calc_evjack/js/script.js"></script>
+    
 </body>
 </html>
