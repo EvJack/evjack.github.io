@@ -1,2 +1,2 @@
 # evjack.github.io
-Значит так. Школьный проект почти готов(Хотя это не правда), после этого тут еще всякие штуки будут() скорее всего.
+School project. There will be many bugs, I will be glad if they are reported
