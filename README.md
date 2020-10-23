@@ -7,4 +7,4 @@ This is a school project aimed at improving knowledge of front-end development a
 `HTML, CSS, JavaScript.`  
 `Frameworks: Bootstrap CSS, JQuery.`  
   
-  > I think there will be many mistakes in the project. I would be grateful if they were reported. ¯\_(ツ)_/¯
+  > I think there will be many mistakes in the project. I would be grateful if they were reported. ¯\\_(ツ)_/¯
