@@ -1,4 +1,4 @@
-# [Online demo](evjack.github.io)  
+# https://evjack.github.io/
 
 ## Description:
 This is a school project aimed at improving knowledge of front-end development and learning new technologies such as JavaScript and Bootstrap CSS.  
