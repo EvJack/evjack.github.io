@@ -5,6 +5,6 @@ This is a school project aimed at improving knowledge of front-end development a
 
 ### Technology stack: 
 `HTML, CSS, JavaScript.`  
-`Frameworks: Bootstrap CSS, JQuery.`  
+`Frameworks: Bootstrap CSS.`  
   
   > I think there will be many mistakes in the project. I would be grateful if they were reported. ¯\\_\(ツ)\_\/¯
