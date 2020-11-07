@@ -1,15 +1,4 @@
-.container {
+.container-fluid {
     border-bottom-left-radius: 20px;
     border-bottom-right-radius: 20px;
-}
-
-.col {
-    color: #F0FFF0;
-    background-color: #343a40;
-}
-
-.col-6 {
-    color: #F0FFF0;
-    background-color: #343a40;
-    text-align: center;
 }
