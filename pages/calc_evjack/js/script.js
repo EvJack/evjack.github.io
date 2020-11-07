@@ -7,10 +7,10 @@ function input(i) {
 
 function result() {
     if (eval(inputCalc.value) == undefined) {
-        resultCalc.value = '0,00';
-        inputCalc.value = '0,00';
+        resultCalc.value = '0.00';
+        inputCalc.value = '0.00';
     } if (eval(inputCalc.value) == Infinity) {
-        resultCalc.value = '0,00';
+        resultCalc.value = '0.00';
         inputCalc.value = 'Error';
     }
     resultCalc.value = eval(inputCalc.value);
@@ -22,6 +22,6 @@ function backspace() {
 }
 
 function reset() {
-    resultCalc.value = '0,00';
-    inputCalc.value = '0,00';
+    resultCalc.value = '0.00';
+    inputCalc.value = '0.00';
 }
