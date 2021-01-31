@@ -1,4 +1,120 @@
+* {
+  overflow-x: hidden;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Yanone+Kaffeesatz:wght@300&display=swap');
+
 .container-fluid {
-    border-bottom-left-radius: 20px;
-    border-bottom-right-radius: 20px;
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: 50% 50%;
+  grid-template-rows: auto auto auto;
+  gap: 0px 0px;
+  grid-template-areas:
+    "game game"
+    "prog prog"
+    "graph graph";
+  font-family: 'Yanone Kaffeesatz', sans-serif;
+  line-height: 1.7;
+  font-size: 19px;
+}
+
+.game {
+  display: grid;
+  grid-template-columns: 40% 60%;
+  grid-template-rows: 300px;
+  gap: 0px 0px;
+  grid-template-areas: "photo__game text__game";
+  grid-area: game;
+  width: auto;
+  height: auto;
+  background-color: #d2d4c8;
+  margin: 15px 0;
+  padding: 0 7px;
+}
+
+.photo__game {
+  grid-area: photo__game;
+}
+
+.photo__game > img {
+  width: 500px;
+  height: 300px;
+  transform: skew(-15deg);
+  position: absolute;
+  left: -55px;
+}
+
+.text__game {
+  grid-area: text__game;
+  text-align: center;
+  margin: auto;
+}
+
+.prog {
+  display: grid;
+  grid-template-columns: 60% 40%;
+  grid-template-rows: 300px;
+  gap: 0px 0px;
+  grid-template-areas: "text__prog photo__prog";
+  grid-area: prog;
+  width: auto;
+  height: auto;
+  background-color: #d2d4c8;
+  margin: 15px 0;
+  padding: 0 7px;
+}
+
+.text__prog {
+  grid-area: text__prog;
+  text-align: center;
+  margin: auto;
+}
+
+.photo__prog {
+  grid-area: photo__prog;
+}
+
+.photo__prog > img {
+  width: 500px;
+  height: 300px;
+  transform: skew(15deg);
+  position: absolute;
+  right: -55px;
+}
+
+.graph {
+  display: grid;
+  grid-template-columns: 40% 60%;
+  grid-template-rows: 300px;
+  gap: 0px 0px;
+  grid-template-areas: "photo__graph text__graph";
+  grid-area: graph;
+  width: auto;
+  height: auto;
+  background-color: #d2d4c8;
+  margin: 15px 0;
+  padding: 0 7px;
+}
+
+.photo__graph {
+  grid-area: photo__graph;
+}
+
+.photo__graph > img {
+  width: 500px;
+  height: 300px;
+  transform: skew(-10deg);
+  position: absolute;
+  left: -55px;
+}
+
+.text__graph {
+  grid-area: text__graph;
+  text-align: center;
+  margin: auto;
 }
