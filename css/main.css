@@ -37,6 +37,14 @@
   padding: 0 7px;
 }
 
+.animation_5 {
+  opacity: 0;
+  transition: 0.5s;
+  animation: show 1.5s 1;
+  animation-fill-mode: forwards;
+  animation-delay: 0.75s;
+}
+
 .photo__game {
   grid-area: photo__game;
 }
@@ -67,6 +75,14 @@
   background-color: #d2d4c8;
   margin: 15px 0;
   padding: 0 7px;
+}
+
+.animation_75 {
+  opacity: 0;
+  transition: 0.75s;
+  animation: show 1.5s 1;
+  animation-fill-mode: forwards;
+  animation-delay: 1.25s;
 }
 
 .text__prog {
@@ -101,6 +117,14 @@
   padding: 0 7px;
 }
 
+.animation_125 {
+  opacity: 0;
+  transition: 1.25s;
+  animation: show 1.5s 1;
+  animation-fill-mode: forwards;
+  animation-delay: 1.5s;
+}
+
 .photo__graph {
   grid-area: photo__graph;
 }
@@ -117,4 +141,13 @@
   grid-area: text__graph;
   text-align: center;
   margin: auto;
+}
+
+@keyframes show {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
