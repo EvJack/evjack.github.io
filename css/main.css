@@ -4,9 +4,14 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Yanone+Kaffeesatz:wght@300&display=swap');
 
-.container-fluid {
-  border-bottom-left-radius: 20px;
-  border-bottom-right-radius: 20px;
+h1 {
+  font-size: 25px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.contents {
+  line-height: 300%;
 }
 
 .grid-container {
@@ -58,9 +63,8 @@
 }
 
 .text__game {
+  padding: 10px;
   grid-area: text__game;
-  text-align: center;
-  margin: auto;
 }
 
 .prog {
@@ -87,8 +91,7 @@
 
 .text__prog {
   grid-area: text__prog;
-  text-align: center;
-  margin: auto;
+  padding: 10px;
 }
 
 .photo__prog {
