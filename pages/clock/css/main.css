@@ -1,0 +1,92 @@
+@import url("https://fonts.googleapis.com/css?family=Anton");
+body {
+  background-color: #2e282a;
+  font-family: "Anton", sans-serif;
+}
+
+.container {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+  transform: rotateX(-90deg);
+  transform-style: preserve-3d;
+}
+
+.numbers {
+  height: 200px;
+  width: 50px;
+  padding: 0;
+  position: relative;
+  margin: auto;
+  list-style-type: none;
+  transform-style: preserve-3d;
+  transform: rotateY(90deg);
+  transition: all ease 0.5s;
+  display: inline-block;
+}
+.numbers li {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+  height: 50%;
+  width: 0;
+  transform-style: preserve-3d;
+  transform-origin: bottom;
+  box-sizing: border-box;
+}
+.numbers li span {
+  height: 50px;
+  width: 50px;
+  display: inline-block;
+  border-radius: 2px;
+  text-align: center;
+  font-size: 5rem;
+  line-height: 50px;
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+  transform: translateX(-50%) translateY(-40px) rotateX(90deg) rotate(90deg);
+}
+.numbers li:nth-child(1) {
+  transform: rotate(0deg);
+}
+.numbers li:nth-child(2) {
+  transform: rotate(-36deg);
+}
+.numbers li:nth-child(3) {
+  transform: rotate(-72deg);
+}
+.numbers li:nth-child(4) {
+  transform: rotate(-108deg);
+}
+.numbers li:nth-child(5) {
+  transform: rotate(-144deg);
+}
+.numbers li:nth-child(6) {
+  transform: rotate(-180deg);
+}
+.numbers li:nth-child(7) {
+  transform: rotate(-216deg);
+}
+.numbers li:nth-child(8) {
+  transform: rotate(-252deg);
+}
+.numbers li:nth-child(9) {
+  transform: rotate(-288deg);
+}
+.numbers li:nth-child(10) {
+  transform: rotate(-324deg);
+}
+.numbers.hours li span {
+  color: #76b041;
+}
+.numbers.minutes li span {
+  color: #17bebb;
+}
+.numbers.seconds li span {
+  color: #ffc914;
+}
