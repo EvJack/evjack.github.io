@@ -22,35 +22,29 @@
 
 <body>
   
-  <div class="container">
-    <div class="calculator">
-      <div class="header">
-        <input type="text" placeholder="0.00" class="account" readonly>
-        <input type="text" placeholder="0.00" class="result" readonly>
-      </div>
-      <div class="main">
-        <button onclick="input('%')" class="btn__calc">%</button>
-        <button onclick="reset('')" class="btn__calc">C</button>
-        <button onclick="backspace('')" class="btn__calc"><i class="fas fa-backspace"></i></button>
-        <button onclick="input('/')" class="btn__calc btn-indigo">/</button>
-        <button onclick="input('7')" class="btn__calc">7</button>
-        <button onclick="input('8')" class="btn__calc">8</button>
-        <button onclick="input('9')" class="btn__calc">9</button>
-        <button onclick="input('*')" class="btn__calc btn-indigo">х</button>
-        <button onclick="input('4')" class="btn__calc">4</button>
-        <button onclick="input('5')" class="btn__calc">5</button>
-        <button onclick="input('6')" class="btn__calc">6</button>
-        <button onclick="input('-')" class="btn__calc btn-indigo">-</button>
-        <button onclick="input('1')" class="btn__calc">1</button>
-        <button onclick="input('2')" class="btn__calc">2</button>
-        <button onclick="input('3')" class="btn__calc">3</button>
-        <button onclick="input('+')" class="btn__calc btn-indigo">+</button>
-        <button onclick="input('0')" class="btn__calc">0</button>
-        <button onclick="input('')" class="btn__calc">.</button>
-        <button onclick="result('')" class="btn-big">=</button>
-      </div>
-    </div>
+  <div class="calculator">
+    <div class="output">0</div>
+    <div class="button">C</div>
+    <div class="button">±</div>
+    <div class="button">%</div>
+    <div class="button accent">÷</div>
+    <div class="button">7</div>
+    <div class="button">8</div>
+    <div class="button">9</div>
+    <div class="button accent">×</div>
+    <div class="button">4</div>
+    <div class="button">5</div>
+    <div class="button">6</div>
+    <div class="button accent">−</div>
+    <div class="button">1</div>
+    <div class="button">2</div>
+    <div class="button">3</div>
+    <div class="button accent">+</div>
+    <div class="button double">0</div>
+    <div class="button">.</div>
+    <div class="button submit">=</div>
   </div>
+
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>

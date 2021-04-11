@@ -1,27 +1,55 @@
-const inputCalc = document.querySelector('.account'),
-    resultCalc = document.querySelector('.result');
+var buttons = document.querySelectorAll('.button');
+var output = document.querySelector('.output');
 
-function input(i) {
-    inputCalc.value = inputCalc.value + i
-}
+var action = null;
+var current = 0;
 
-function result() {
-    if (eval(inputCalc.value) == undefined) {
-        resultCalc.value = '0.00';
-        inputCalc.value = '0.00';
-    } if (eval(inputCalc.value) == Infinity) {
-        resultCalc.value = '0.00';
-        inputCalc.value = 'Error';
+var actions = {
+    '±': ' - ',
+    '%': ' % ',
+    '÷': ' / ',
+    '×': ' * ',
+    '−': ' - ',
+    '+': ' + ',
+};
+
+for (button in buttons) {
+    buttons[button].onclick = function(e) {
+        var input = e.target.innerText;
+        var num = parseInt(input);
+        if (isNaN(num)) {
+            if (input === 'C') {
+                console.log('clear');
+                action = null;
+                current = 0;
+                output.innerText = 0;
+            } else {
+                if (action && action !== '=') {
+                    var calculation = current + actions[action] + output.innerText;
+                    console.log('calculate', calculation);
+                    output.innerText = eval(calculation);
+                }
+                current = parseInt(output.innerText);
+                action = input;
+            }
+        } else {
+            if (current === parseInt(output.innerText)) {
+                output.innerText = num;
+            } else {
+                output.innerText += num;
+            }
+        }
+        console.log({
+            action: action,
+            current: current,
+            input: input,
+        });
     }
-    resultCalc.value = eval(inputCalc.value);
-    inputCalc.value = eval(inputCalc.value);
+    ;
 }
 
-function backspace() {
-    inputCalc.value = inputCalc.value.substring(0, inputCalc.value.length - 1);
-}
-
-function reset() {
-    resultCalc.value = '0.00';
-    inputCalc.value = '0.00';
-}
+document.addEventListener('keypress', function(e) {
+    if (e.which > 47 && e.which < 58) {
+        console.log('numbers!');
+    }
+});
