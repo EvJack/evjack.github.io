@@ -9,6 +9,12 @@ class CurrencyAnalyzer {
         this.loading = document.getElementById('loading');
         this.apiStatus = document.getElementById('apiStatus');
         this.chart = null;
+        
+        // Элементы периодов
+        this.periodButtons = document.querySelectorAll('.period-btn');
+
+        this.currentPeriod = 7;
+        this.previousRates = new Map(); // Для хранения предыдущих курсов
 
         this.cache = {
             current: {},
@@ -26,13 +32,40 @@ class CurrencyAnalyzer {
         this.baseCurrency.addEventListener('change', () => this.analyzeCurrency());
         this.targetCurrency.addEventListener('change', () => this.analyzeCurrency());
         this.amount.addEventListener('input', () => this.updateConversion());
+
+        // Обработчики периодов
+        this.periodButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => this.changePeriod(e.target));
+        });
+    }
+
+    changePeriod(button) {
+        this.periodButtons.forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+        this.currentPeriod = parseInt(button.dataset.period);
+        this.analyzeCurrency();
+    }
+
+    getCurrencyIcon(currency) {
+        const icons = {
+            'USD': 'fa-dollar-sign',
+            'EUR': 'fa-euro-sign',
+            'RUB': 'fa-ruble-sign',
+            'GBP': 'fa-sterling-sign',
+            'JPY': 'fa-yen-sign',
+            'CNY': 'fa-yen-sign',
+            'CHF': 'fa-franc-sign',
+            'CAD': 'fa-dollar-sign',
+            'AUD': 'fa-dollar-sign',
+            'TRY': 'fa-lira-sign'
+        };
+        return icons[currency] || 'fa-money-bill-wave';
     }
 
     async testAPI() {
         try {
             this.updateApiStatus('loading', 'Проверка подключения к API...');
             
-            // Тестируем API на примере USD к EUR
             const testResponse = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json');
             
             if (!testResponse.ok) {
@@ -41,9 +74,8 @@ class CurrencyAnalyzer {
             
             const testData = await testResponse.json();
             
-            if (testData && testData.eur) {
+            if (testData && testData.date && testData.usd) {
                 this.updateApiStatus('connected', '✅ API подключено успешно');
-                console.log('API test successful:', testData);
             } else {
                 throw new Error('Invalid API response format');
             }
@@ -60,7 +92,7 @@ class CurrencyAnalyzer {
     }
 
     async populateCurrencyList() {
-        const popularCurrencies = [
+        const currencies = [
             { code: 'USD', name: 'Доллар США' },
             { code: 'EUR', name: 'Евро' },
             { code: 'RUB', name: 'Российский рубль' },
@@ -76,11 +108,10 @@ class CurrencyAnalyzer {
         const baseSelect = this.baseCurrency;
         const targetSelect = this.targetCurrency;
 
-        // Очищаем и заполняем селекты
         baseSelect.innerHTML = '';
         targetSelect.innerHTML = '';
 
-        popularCurrencies.forEach(currency => {
+        currencies.forEach(currency => {
             const baseOption = new Option(`${currency.code} - ${currency.name}`, currency.code);
             const targetOption = new Option(`${currency.code} - ${currency.name}`, currency.code);
             
@@ -106,11 +137,11 @@ class CurrencyAnalyzer {
         try {
             const [currentRate, historicalData] = await Promise.all([
                 this.fetchCurrentRate(base, target),
-                this.fetchHistoricalData(base, target)
+                this.fetchHistoricalData(base, target, this.currentPeriod)
             ]);
 
             this.displayCurrentRate(currentRate);
-            this.displayHistoricalChart(historicalData);
+            this.displayChart(historicalData);
             this.calculateStatistics(historicalData);
             
         } catch (error) {
@@ -124,75 +155,61 @@ class CurrencyAnalyzer {
     async fetchCurrentRate(base, target) {
         const cacheKey = `${base}_${target}`;
         
-        // Проверяем кэш (5 минут)
+        // Сохраняем предыдущий курс для анимации изменений
+        const previousRate = this.cache.current[cacheKey] ? this.cache.current[cacheKey].data.rate : null;
+        
         if (this.cache.current[cacheKey] && 
             Date.now() - this.cache.current[cacheKey].timestamp < 300000) {
-            return this.cache.current[cacheKey].data;
+            const cachedData = {...this.cache.current[cacheKey].data};
+            cachedData.previousRate = previousRate;
+            return cachedData;
         }
 
         try {
-            // Используем корректный URL для API
-            const baseLower = base.toLowerCase();
-            const targetLower = target.toLowerCase();
-            
-            const response = await fetch(`https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@1/latest/currencies/${baseLower}/${targetLower}.json`);
+            const response = await fetch(`https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/${base.toLowerCase()}.json`);
             
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             
             const data = await response.json();
-            console.log('API Response:', data); // Для отладки
+            const baseData = data[base.toLowerCase()];
             
-            if (data && data[targetLower] !== undefined) {
-                const rateData = {
-                    rate: parseFloat(data[targetLower]),
-                    date: new Date(data.date || Date.now()),
-                    source: 'live-api'
-                };
-
-                // Сохраняем в кэш
-                this.cache.current[cacheKey] = {
-                    data: rateData,
-                    timestamp: Date.now()
-                };
-
-                return rateData;
-            } else {
-                throw new Error('Invalid API response format');
+            if (!baseData) {
+                throw new Error(`No data for base currency: ${base}`);
             }
+
+            const targetRate = baseData[target.toLowerCase()];
+            if (targetRate === undefined) {
+                throw new Error(`No conversion rate for: ${target}`);
+            }
+
+            const rateData = {
+                rate: parseFloat(targetRate),
+                date: new Date(data.date),
+                source: 'live-api',
+                previousRate: previousRate
+            };
+
+            this.cache.current[cacheKey] = {
+                data: rateData,
+                timestamp: Date.now()
+            };
+
+            return rateData;
         } catch (error) {
-            console.warn('Primary API failed, using fallback:', error);
-            return await this.fetchFallbackRate(base, target);
+            console.warn('API failed, using fallback:', error);
+            return await this.fetchFallbackRate(base, target, previousRate);
         }
     }
 
-    async fetchFallbackRate(base, target) {
-        // Обновленные фиксированные курсы (более актуальные)
+    async fetchFallbackRate(base, target, previousRate) {
         const fallbackRates = {
-            'USD_EUR': 0.92,
-            'USD_RUB': 95.0,
-            'USD_GBP': 0.79,
-            'USD_JPY': 150.0,
-            'USD_CNY': 7.25,
-            'USD_CHF': 0.90,
-            'USD_CAD': 1.35,
-            'USD_AUD': 1.55,
-            'USD_TRY': 32.5,
-            'EUR_USD': 1.09,
-            'EUR_RUB': 103.5,
-            'EUR_GBP': 0.86,
-            'EUR_JPY': 163.0,
-            'EUR_CHF': 0.98,
-            'RUB_USD': 0.0105,
-            'RUB_EUR': 0.0097,
-            'RUB_CNY': 0.076,
-            'GBP_USD': 1.27,
-            'GBP_EUR': 1.16,
-            'GBP_JPY': 190.0,
-            'JPY_USD': 0.0067,
-            'CNY_USD': 0.138,
-            'CHF_USD': 1.11
+            'USD_EUR': 0.92, 'USD_RUB': 95.0, 'USD_GBP': 0.79, 'USD_JPY': 150.0,
+            'USD_CNY': 7.25, 'USD_CHF': 0.90, 'USD_CAD': 1.35, 'USD_AUD': 1.55,
+            'USD_TRY': 32.5, 'EUR_USD': 1.09, 'EUR_RUB': 103.5, 'EUR_GBP': 0.86,
+            'EUR_JPY': 163.0, 'EUR_CHF': 0.98, 'RUB_USD': 0.0105, 'RUB_EUR': 0.0097,
+            'GBP_USD': 1.27, 'GBP_EUR': 1.16, 'JPY_USD': 0.0067, 'CNY_USD': 0.138
         };
 
         const key = `${base}_${target}`;
@@ -200,42 +217,22 @@ class CurrencyAnalyzer {
             return {
                 rate: fallbackRates[key],
                 date: new Date(),
-                source: 'fallback-data'
+                source: 'fallback-data',
+                previousRate: previousRate
             };
         }
 
-        // Генерируем реалистичный курс
         const baseRate = this.generateRealisticRate(base, target);
         return {
             rate: baseRate,
             date: new Date(),
-            source: 'generated-data'
+            source: 'generated-data',
+            previousRate: previousRate
         };
     }
 
-    generateRealisticRate(base, target) {
-        const baseRates = {
-            'USD': 1,
-            'EUR': 0.92,
-            'RUB': 95.0,
-            'GBP': 0.79,
-            'JPY': 150.0,
-            'CNY': 7.25,
-            'CHF': 0.90,
-            'CAD': 1.35,
-            'AUD': 1.55,
-            'TRY': 32.5
-        };
-
-        if (baseRates[base] && baseRates[target]) {
-            return parseFloat((baseRates[target] / baseRates[base]).toFixed(4));
-        }
-
-        return 1 + Math.random() * 2;
-    }
-
-    async fetchHistoricalData(base, target) {
-        const cacheKey = `${base}_${target}_historical`;
+    async fetchHistoricalData(base, target, days) {
+        const cacheKey = `${base}_${target}_${days}`;
         
         if (this.cache.historical[cacheKey]) {
             return this.cache.historical[cacheKey];
@@ -246,33 +243,30 @@ class CurrencyAnalyzer {
         const today = new Date();
 
         try {
-            // Получаем текущий курс для базового значения
-            const currentRateData = await this.fetchCurrentRate(base, target);
-            let baseRate = currentRateData.rate;
-
-            for (let i = 6; i >= 0; i--) {
+            for (let i = days - 1; i >= 0; i--) {
                 const date = new Date();
                 date.setDate(today.getDate() - i);
-                const dateStr = this.formatDateForAPI(date);
-
+                
                 if (i === 0) {
                     // Для сегодня используем текущий курс
+                    const currentRate = await this.fetchCurrentRate(base, target);
                     dates.push(this.formatDate(date));
-                    rates.push(baseRate);
+                    rates.push(currentRate.rate);
                     continue;
                 }
 
+                const dateStr = this.formatDateForAPI(date);
+                
                 try {
-                    // Пытаемся получить исторические данные
-                    const baseLower = base.toLowerCase();
-                    const targetLower = target.toLowerCase();
-                    const response = await fetch(`https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@1/${dateStr}/currencies/${baseLower}/${targetLower}.json`);
+                    const response = await fetch(`https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@${dateStr}/v1/currencies/${base.toLowerCase()}.json`);
                     
                     if (response.ok) {
                         const data = await response.json();
-                        if (data && data[targetLower] !== undefined) {
+                        const baseData = data[base.toLowerCase()];
+                        
+                        if (baseData && baseData[target.toLowerCase()] !== undefined) {
                             dates.push(this.formatDate(date));
-                            rates.push(parseFloat(data[targetLower]));
+                            rates.push(parseFloat(baseData[target.toLowerCase()]));
                             continue;
                         }
                     }
@@ -280,18 +274,15 @@ class CurrencyAnalyzer {
                     console.warn(`Failed historical data for ${dateStr}:`, error);
                 }
 
-                // Генерируем данные на основе тренда
-                const trend = Math.random() > 0.5 ? 1 : -1;
-                const change = baseRate * 0.01 * trend * Math.random();
-                const historicalRate = baseRate + change;
-                
+                // Интерполяция
+                const lastRate = rates.length > 0 ? rates[rates.length - 1] : await this.getBaseRate(base, target);
+                const randomChange = (Math.random() - 0.5) * lastRate * 0.02;
                 dates.push(this.formatDate(date));
-                rates.push(parseFloat(historicalRate.toFixed(4)));
+                rates.push(parseFloat((lastRate + randomChange).toFixed(4)));
             }
 
             const historicalData = { dates, rates };
             
-            // Кэшируем на 10 минут
             this.cache.historical[cacheKey] = historicalData;
             setTimeout(() => {
                 delete this.cache.historical[cacheKey];
@@ -300,27 +291,24 @@ class CurrencyAnalyzer {
             return historicalData;
 
         } catch (error) {
-            console.warn('Historical data failed, generating:', error);
-            return this.generateHistoricalData(base, target);
+            console.warn('Historical data failed:', error);
+            return this.generateHistoricalData(base, target, days);
         }
     }
 
-    generateHistoricalData(base, target) {
+    generateHistoricalData(base, target, days) {
         const dates = [];
         const rates = [];
         const today = new Date();
-
-        // Базовый курс для генерации
         const baseRate = this.generateRealisticRate(base, target);
 
-        for (let i = 6; i >= 0; i--) {
+        for (let i = days - 1; i >= 0; i--) {
             const date = new Date();
             date.setDate(today.getDate() - i);
             
-            // Реалистичные колебания
-            const volatility = 0.015; // 1.5%
+            const volatility = 0.015;
             const randomChange = (Math.random() - 0.5) * volatility * 2;
-            const rate = baseRate * (1 + randomChange * (6 - i) / 6);
+            const rate = baseRate * (1 + randomChange * (days - i) / days);
             
             dates.push(this.formatDate(date));
             rates.push(parseFloat(rate.toFixed(4)));
@@ -330,7 +318,11 @@ class CurrencyAnalyzer {
     }
 
     formatDateForAPI(date) {
-        return date.toISOString().split('T')[0];
+        // Исправленное форматирование: YYYY.M.D (без ведущих нулей)
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1; // Без ведущих нулей
+        const day = date.getDate(); // Без ведущих нулей
+        return `${year}.${month}.${day}`;
     }
 
     displayCurrentRate(rateData) {
@@ -343,25 +335,49 @@ class CurrencyAnalyzer {
         } else if (rateData.source === 'generated-data') {
             sourceBadge = '<br><small style="color: #e74c3c;">⚠️ Используются примерные данные</small>';
         } else {
-            sourceBadge = '<br><small style="color: #27ae60;">✅ Актуальные данные</small>';
+            sourceBadge = '<br><small style="color: #27ae60;">✅ Актуальные данные с API</small>';
         }
 
+        // Анимированное изменение курса
+        const changeIndicator = this.getChangeIndicator(rateData.rate, rateData.previousRate);
+
         this.rateInfo.innerHTML = `
-            <div class="rate-value">1 ${this.baseCurrency.value} = ${rateData.rate.toFixed(4)} ${this.targetCurrency.value}</div>
+            <div class="rate-value">
+                <i class="fas ${this.getCurrencyIcon(this.baseCurrency.value)}"></i>
+                1 ${this.baseCurrency.value} = ${rateData.rate.toFixed(4)} ${this.targetCurrency.value}
+                ${changeIndicator}
+            </div>
             <div style="font-size: 1.2em; margin: 15px 0;">
                 <strong>${amount} ${this.baseCurrency.value}</strong> = 
                 <strong style="color: #27ae60;">${convertedAmount} ${this.targetCurrency.value}</strong>
             </div>
             <div style="color: #666; font-size: 0.9em;">
-                Обновлено: ${this.formatDateTime(rateData.date)}
+                Дата: ${this.formatDate(rateData.date)}
                 ${sourceBadge}
             </div>
         `;
     }
 
-    displayHistoricalChart(historicalData) {
-        const ctx = document.getElementById('currencyChart').getContext('2d');
+    getChangeIndicator(currentRate, previousRate) {
+        if (!previousRate || previousRate === currentRate) return '';
+        
+        const change = currentRate - previousRate;
+        const changePercent = ((change / previousRate) * 100).toFixed(2);
+        
+        if (change > 0) {
+            return `<span class="currency-change change-up">
+                <i class="fas fa-arrow-up"></i> +${changePercent}%
+            </span>`;
+        } else {
+            return `<span class="currency-change change-down">
+                <i class="fas fa-arrow-down"></i> ${changePercent}%
+            </span>`;
+        }
+    }
 
+    displayChart(historicalData) {
+        const ctx = document.getElementById('currencyChart').getContext('2d');
+        
         if (this.chart) {
             this.chart.destroy();
         }
@@ -371,7 +387,7 @@ class CurrencyAnalyzer {
             data: {
                 labels: historicalData.dates,
                 datasets: [{
-                    label: `Курс ${this.baseCurrency.value} к ${this.targetCurrency.value}`,
+                    label: `${this.baseCurrency.value}/${this.targetCurrency.value}`,
                     data: historicalData.rates,
                     borderColor: '#3498db',
                     backgroundColor: 'rgba(52, 152, 219, 0.1)',
@@ -381,13 +397,17 @@ class CurrencyAnalyzer {
                     pointBackgroundColor: '#2980b9',
                     pointBorderColor: '#ffffff',
                     pointBorderWidth: 2,
-                    pointRadius: 5,
-                    pointHoverRadius: 7
+                    pointRadius: 4,
+                    pointHoverRadius: 6
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: true,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
                 plugins: {
                     legend: {
                         display: true,
@@ -398,7 +418,7 @@ class CurrencyAnalyzer {
                         intersect: false,
                         callbacks: {
                             label: function(context) {
-                                return `Курс: ${context.parsed.y.toFixed(4)}`;
+                                return `${context.dataset.label}: ${context.parsed.y.toFixed(4)}`;
                             }
                         }
                     }
@@ -407,12 +427,20 @@ class CurrencyAnalyzer {
                     x: {
                         grid: {
                             display: false
+                        },
+                        ticks: {
+                            maxRotation: 45
                         }
                     },
                     y: {
                         beginAtZero: false,
                         grid: {
                             color: 'rgba(0,0,0,0.1)'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return value.toFixed(4);
+                            }
                         }
                     }
                 }
@@ -434,7 +462,6 @@ class CurrencyAnalyzer {
         const change = rates[rates.length - 1] - rates[0];
         const changePercent = ((change / rates[0]) * 100).toFixed(2);
         
-        // Волатильность как среднее изменение
         const changes = [];
         for (let i = 1; i < rates.length; i++) {
             changes.push(Math.abs((rates[i] - rates[i-1]) / rates[i-1]));
@@ -442,6 +469,10 @@ class CurrencyAnalyzer {
         const volatility = (changes.reduce((a, b) => a + b, 0) / changes.length * 100).toFixed(2);
 
         this.statsInfo.innerHTML = `
+            <div class="stat-item">
+                <span>Период анализа:</span>
+                <span class="stat-value">${this.currentPeriod} дней</span>
+            </div>
             <div class="stat-item">
                 <span>Минимальный курс:</span>
                 <span class="stat-value">${min.toFixed(4)}</span>
@@ -455,7 +486,7 @@ class CurrencyAnalyzer {
                 <span class="stat-value">${average.toFixed(4)}</span>
             </div>
             <div class="stat-item">
-                <span>Изменение за неделю:</span>
+                <span>Изменение за период:</span>
                 <span class="stat-value" style="color: ${change >= 0 ? '#27ae60' : '#e74c3c'}">
                     ${change >= 0 ? '+' : ''}${change.toFixed(4)} (${changePercent}%)
                 </span>
@@ -465,6 +496,36 @@ class CurrencyAnalyzer {
                 <span class="stat-value">${volatility}%</span>
             </div>
         `;
+    }
+
+    formatDate(date) {
+        return new Intl.DateTimeFormat('ru-RU', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        }).format(date);
+    }
+
+    generateRealisticRate(base, target) {
+        const baseRates = {
+            'USD': 1, 'EUR': 0.92, 'RUB': 95.0, 'GBP': 0.79, 'JPY': 150.0,
+            'CNY': 7.25, 'CHF': 0.90, 'CAD': 1.35, 'AUD': 1.55, 'TRY': 32.5
+        };
+
+        if (baseRates[base] && baseRates[target]) {
+            return parseFloat((baseRates[target] / baseRates[base]).toFixed(4));
+        }
+
+        return 1 + Math.random() * 2;
+    }
+
+    async getBaseRate(base, target) {
+        try {
+            const currentRate = await this.fetchCurrentRate(base, target);
+            return currentRate.rate;
+        } catch (error) {
+            return this.generateRealisticRate(base, target);
+        }
     }
 
     updateConversion() {
@@ -488,23 +549,6 @@ class CurrencyAnalyzer {
         }
     }
 
-    formatDate(date) {
-        return new Intl.DateTimeFormat('ru-RU', {
-            day: '2-digit',
-            month: '2-digit'
-        }).format(date);
-    }
-
-    formatDateTime(date) {
-        return new Intl.DateTimeFormat('ru-RU', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        }).format(date);
-    }
-
     showLoading(show) {
         this.loading.style.display = show ? 'flex' : 'none';
     }
@@ -526,10 +570,9 @@ class CurrencyAnalyzer {
 
 // Инициализация приложения
 document.addEventListener('DOMContentLoaded', () => {
-    const analyzer = new CurrencyAnalyzer();
+    const currencyAnalyzer = new CurrencyAnalyzer();
     
-    // Автоматический запуск анализа
     setTimeout(() => {
-        analyzer.analyzeCurrency();
+        currencyAnalyzer.analyzeCurrency();
     }, 1000);
 });
