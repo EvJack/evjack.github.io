@@ -10,11 +10,22 @@ class CurrencyAnalyzer {
         this.apiStatus = document.getElementById('apiStatus');
         this.chart = null;
         
-        // Элементы периодов
         this.periodButtons = document.querySelectorAll('.period-btn');
-
         this.currentPeriod = 7;
-        this.previousRates = new Map(); // Для хранения предыдущих курсов
+
+        // Система аутентификации
+        this.authManager = null;
+        this.db = null;
+        this.isDbInitialized = false;
+        
+        // Элементы для авторизации
+        this.authContainer = document.getElementById('authContainer');
+        this.userInfoContainer = document.getElementById('userInfoContainer');
+        this.loginBtn = document.getElementById('loginBtn');
+        this.registerBtn = document.getElementById('registerBtn');
+        this.profileBtn = document.getElementById('profileBtn');
+        this.logoutBtn = document.getElementById('logoutBtn');
+        this.usernameSpan = document.getElementById('usernameSpan');
 
         this.cache = {
             current: {},
@@ -24,6 +35,37 @@ class CurrencyAnalyzer {
         this.initializeEventListeners();
         this.populateCurrencyList();
         this.testAPI();
+        this.initAuth();
+    }
+
+    async initAuth() {
+        try {
+            this.db = new CurrencyDatabase();
+            await this.db.init();
+            this.isDbInitialized = true;
+            
+            this.authManager = new AuthManager();
+            await this.authManager.init();
+            this.updateAuthUI();
+        } catch (error) {
+            console.error('Ошибка инициализации аутентификации:', error);
+            this.isDbInitialized = false;
+        }
+    }
+
+    updateAuthUI() {
+        if (!this.authManager) return;
+        
+        if (this.authManager.isAuthenticated()) {
+            // Показываем информацию о пользователе
+            this.authContainer.style.display = 'none';
+            this.userInfoContainer.style.display = 'block';
+            this.usernameSpan.textContent = this.authManager.currentUser.username;
+        } else {
+            // Показываем кнопки авторизации
+            this.authContainer.style.display = 'block';
+            this.userInfoContainer.style.display = 'none';
+        }
     }
 
     initializeEventListeners() {
@@ -37,6 +79,38 @@ class CurrencyAnalyzer {
         this.periodButtons.forEach(btn => {
             btn.addEventListener('click', (e) => this.changePeriod(e.target));
         });
+
+        // Обработчики авторизации
+        if (this.loginBtn) {
+            this.loginBtn.addEventListener('click', () => this.goToLogin());
+        }
+        if (this.registerBtn) {
+            this.registerBtn.addEventListener('click', () => this.goToRegister());
+        }
+        if (this.profileBtn) {
+            this.profileBtn.addEventListener('click', () => this.goToProfile());
+        }
+        if (this.logoutBtn) {
+            this.logoutBtn.addEventListener('click', () => this.logout());
+        }
+    }
+
+    goToLogin() {
+        window.location.href = 'login.html';
+    }
+
+    goToRegister() {
+        window.location.href = 'register.html';
+    }
+
+    goToProfile() {
+        window.location.href = 'profile.html';
+    }
+
+    logout() {
+        if (this.authManager) {
+            this.authManager.logout();
+        }
     }
 
     changePeriod(button) {
@@ -144,6 +218,23 @@ class CurrencyAnalyzer {
             this.displayChart(historicalData);
             this.calculateStatistics(historicalData);
             
+            // Сохраняем в историю конвертаций если пользователь авторизован и БД инициализирована
+            if (this.authManager && this.authManager.isAuthenticated() && 
+                this.isDbInitialized && parseFloat(this.amount.value) > 0) {
+                try {
+                    await this.db.addConversion(
+                        this.authManager.currentUser.id,
+                        base,
+                        target,
+                        parseFloat(this.amount.value),
+                        parseFloat(this.amount.value) * currentRate.rate
+                    );
+                } catch (dbError) {
+                    console.warn('Не удалось сохранить в историю:', dbError);
+                    // Не прерываем выполнение из-за ошибки БД
+                }
+            }
+            
         } catch (error) {
             console.error('Analysis error:', error);
             this.showError('Не удалось получить данные. Попробуйте позже.');
@@ -155,14 +246,9 @@ class CurrencyAnalyzer {
     async fetchCurrentRate(base, target) {
         const cacheKey = `${base}_${target}`;
         
-        // Сохраняем предыдущий курс для анимации изменений
-        const previousRate = this.cache.current[cacheKey] ? this.cache.current[cacheKey].data.rate : null;
-        
         if (this.cache.current[cacheKey] && 
             Date.now() - this.cache.current[cacheKey].timestamp < 300000) {
-            const cachedData = {...this.cache.current[cacheKey].data};
-            cachedData.previousRate = previousRate;
-            return cachedData;
+            return this.cache.current[cacheKey].data;
         }
 
         try {
@@ -187,8 +273,7 @@ class CurrencyAnalyzer {
             const rateData = {
                 rate: parseFloat(targetRate),
                 date: new Date(data.date),
-                source: 'live-api',
-                previousRate: previousRate
+                source: 'live-api'
             };
 
             this.cache.current[cacheKey] = {
@@ -199,11 +284,11 @@ class CurrencyAnalyzer {
             return rateData;
         } catch (error) {
             console.warn('API failed, using fallback:', error);
-            return await this.fetchFallbackRate(base, target, previousRate);
+            return await this.fetchFallbackRate(base, target);
         }
     }
 
-    async fetchFallbackRate(base, target, previousRate) {
+    async fetchFallbackRate(base, target) {
         const fallbackRates = {
             'USD_EUR': 0.92, 'USD_RUB': 95.0, 'USD_GBP': 0.79, 'USD_JPY': 150.0,
             'USD_CNY': 7.25, 'USD_CHF': 0.90, 'USD_CAD': 1.35, 'USD_AUD': 1.55,
@@ -217,8 +302,7 @@ class CurrencyAnalyzer {
             return {
                 rate: fallbackRates[key],
                 date: new Date(),
-                source: 'fallback-data',
-                previousRate: previousRate
+                source: 'fallback-data'
             };
         }
 
@@ -226,8 +310,7 @@ class CurrencyAnalyzer {
         return {
             rate: baseRate,
             date: new Date(),
-            source: 'generated-data',
-            previousRate: previousRate
+            source: 'generated-data'
         };
     }
 
@@ -248,7 +331,6 @@ class CurrencyAnalyzer {
                 date.setDate(today.getDate() - i);
                 
                 if (i === 0) {
-                    // Для сегодня используем текущий курс
                     const currentRate = await this.fetchCurrentRate(base, target);
                     dates.push(this.formatDate(date));
                     rates.push(currentRate.rate);
@@ -274,7 +356,6 @@ class CurrencyAnalyzer {
                     console.warn(`Failed historical data for ${dateStr}:`, error);
                 }
 
-                // Интерполяция
                 const lastRate = rates.length > 0 ? rates[rates.length - 1] : await this.getBaseRate(base, target);
                 const randomChange = (Math.random() - 0.5) * lastRate * 0.02;
                 dates.push(this.formatDate(date));
@@ -318,10 +399,9 @@ class CurrencyAnalyzer {
     }
 
     formatDateForAPI(date) {
-        // Исправленное форматирование: YYYY.M.D (без ведущих нулей)
         const year = date.getFullYear();
-        const month = date.getMonth() + 1; // Без ведущих нулей
-        const day = date.getDate(); // Без ведущих нулей
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
         return `${year}.${month}.${day}`;
     }
 
@@ -338,14 +418,10 @@ class CurrencyAnalyzer {
             sourceBadge = '<br><small style="color: #27ae60;">✅ Актуальные данные с API</small>';
         }
 
-        // Анимированное изменение курса
-        const changeIndicator = this.getChangeIndicator(rateData.rate, rateData.previousRate);
-
         this.rateInfo.innerHTML = `
             <div class="rate-value">
                 <i class="fas ${this.getCurrencyIcon(this.baseCurrency.value)}"></i>
                 1 ${this.baseCurrency.value} = ${rateData.rate.toFixed(4)} ${this.targetCurrency.value}
-                ${changeIndicator}
             </div>
             <div style="font-size: 1.2em; margin: 15px 0;">
                 <strong>${amount} ${this.baseCurrency.value}</strong> = 
@@ -356,23 +432,6 @@ class CurrencyAnalyzer {
                 ${sourceBadge}
             </div>
         `;
-    }
-
-    getChangeIndicator(currentRate, previousRate) {
-        if (!previousRate || previousRate === currentRate) return '';
-        
-        const change = currentRate - previousRate;
-        const changePercent = ((change / previousRate) * 100).toFixed(2);
-        
-        if (change > 0) {
-            return `<span class="currency-change change-up">
-                <i class="fas fa-arrow-up"></i> +${changePercent}%
-            </span>`;
-        } else {
-            return `<span class="currency-change change-down">
-                <i class="fas fa-arrow-down"></i> ${changePercent}%
-            </span>`;
-        }
     }
 
     displayChart(historicalData) {
@@ -572,7 +631,8 @@ class CurrencyAnalyzer {
 document.addEventListener('DOMContentLoaded', () => {
     const currencyAnalyzer = new CurrencyAnalyzer();
     
+    // Задержка для инициализации БД перед первым анализом
     setTimeout(() => {
         currencyAnalyzer.analyzeCurrency();
-    }, 1000);
+    }, 1500);
 });

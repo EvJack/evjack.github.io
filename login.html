@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход - Анализатор валют</title>
+    <link rel="stylesheet" href="auth-style.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-form">
+            <h1>Вход в систему</h1>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Пароль:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="auth-btn">Войти</button>
+            </form>
+            <div class="auth-links">
+                <a href="register.html">Нет аккаунта? Зарегистрируйтесь</a>
+                <a href="index.html">На главную</a>
+            </div>
+            <div id="authMessage" class="auth-message" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script src="db.js"></script>
+    <script src="auth.js"></script>
+    <script src="auth-pages.js"></script>
+</body>
+</html>
